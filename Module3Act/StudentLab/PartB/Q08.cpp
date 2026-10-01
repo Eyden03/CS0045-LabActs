@@ -11,79 +11,62 @@
 using namespace std;
 
 /*
- Exercise Q09 - Active Motion Coordinate Display
+ Exercise Q08 - Clamped Keyboard Movement
  ------------------------------------
- Objective: Practice using glutMotionFunc with
- pixel-to-OpenGL coordinate conversion.
+ Objective: Practice keyboard-controlled movement with
+ boundary clamping.
 
- This program displays the cursor's OpenGL coordinates
- while a mouse button is held and dragged.
+ This program uses the 'a' and 'd' keys to move a square
+ left and right without allowing it to pass the window edges.
  */
 
-float cursorX = 0.0f;
-float cursorY = 0.0f;
-bool hasDragged = false;
-
-// Helper function to render strings character-by-character
-void drawBitmapString(void* font, const char* str) {
-    for (const char* c = str; *c != '\0'; c++) {
-        glutBitmapCharacter(font, *c);
-    }
-}
-
-// Convert pixel coordinates to OpenGL coordinates
-void toOpenGLCoords(int x, int y, float& openGLX, float& openGLY) {
-    int width = glutGet(GLUT_WINDOW_WIDTH);
-    int height = glutGet(GLUT_WINDOW_HEIGHT);
-
-    openGLX = (2.0f * x / width) - 1.0f; // convert X
-    openGLY = 1.0f - (2.0f * y / height); // convert and flip Y
-}
+float squareX = 0.0f;
+const float squareHalfWidth = 0.1f;
+const float moveSpeed = 0.05f;
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (hasDragged) {
-        char coordinates[64];
-
-        snprintf(
-            coordinates,
-            sizeof(coordinates),
-            "OpenGL Position: (%.2f, %.2f)",
-            cursorX,
-            cursorY
-        );
-
-        glColor3f(0.95f, 0.65f, 0.85f); // light pink
-        glRasterPos2f(-0.48f, 0.0f); // near the center
-        drawBitmapString(GLUT_BITMAP_HELVETICA_18, coordinates);
-    }
-    else {
-        glColor3f(0.65f, 0.85f, 1.0f); // light blue
-        glRasterPos2f(-0.45f, 0.0f); // near the center
-        drawBitmapString(
-            GLUT_BITMAP_HELVETICA_18,
-            "Hold a mouse button and drag"
-        );
-    }
+    glColor3f(0.85f, 0.45f, 0.75f); // soft pink
+    glBegin(GL_POLYGON);
+        glVertex2f(squareX - squareHalfWidth, -0.1f); // bottom-left
+        glVertex2f(squareX - squareHalfWidth, 0.1f); // top-left
+        glVertex2f(squareX + squareHalfWidth, 0.1f); // top-right
+        glVertex2f(squareX + squareHalfWidth, -0.1f); // bottom-right
+    glEnd();
 
     glFlush();
 }
 
-void activeMotion(int x, int y) {
-    toOpenGLCoords(x, y, cursorX, cursorY);
-    hasDragged = true;
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        case 'a':
+            squareX -= moveSpeed; // move left
+            break;
 
-    glutPostRedisplay(); // update coordinates
+        case 'd':
+            squareX += moveSpeed; // move right
+            break;
+    }
+
+    if (squareX < -0.9f) {
+        squareX = -0.9f; // clamp left edge
+    }
+
+    if (squareX > 0.9f) {
+        squareX = 0.9f; // clamp right edge
+    }
+
+    glutPostRedisplay(); // redraw window
 }
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
-    glutInitWindowSize(700, 450);
-    glutCreateWindow("Q09 - Active Motion Coordinate Display");
+    glutInitWindowSize(600, 400);
+    glutCreateWindow("Q08 - Clamped Keyboard Movement");
 
     glutDisplayFunc(display);
-    glutMotionFunc(activeMotion); // register active motion callback
+    glutKeyboardFunc(keyboard); // register keyboard callback
     glutMainLoop();
 
     return 0;
