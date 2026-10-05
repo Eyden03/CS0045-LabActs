@@ -15,17 +15,26 @@ using namespace std;
 * approaches side by side.
 */
 
-void triangle() { glBegin(GL_TRIANGLES);
-glVertex2f(0.0f, 0.75f); glVertex2f(-0.75f, 0.0f); glVertex2f(0.75f, 0.0f);
-glEnd();
+void triangle() { 
+  glBegin(GL_TRIANGLES);
+    glVertex2f(0.0f, 0.75f); 
+    glVertex2f(-0.75f, 0.0f); 
+    glVertex2f(0.75f, 0.0f);
+  glEnd();
 }
 
-void display() { glClear(GL_COLOR_BUFFER_BIT); glColor3f(0.16f, 0.72f, 0.08f); triangle();
+void display() { 
+  glClear(GL_COLOR_BUFFER_BIT); 
+  glColor3f(0.16f, 0.72f, 0.08f); 
+  triangle();
 glFlush();
 }
 
-int main(int argc, char** argv) { glutInit(&argc, argv); glutInitWindowSize(600, 500);
-glutCreateWindow("Ex01 - Immediate Mode Triangle"); glutDisplayFunc(display);
+int main(int argc, char** argv) { 
+  glutInit(&argc, argv); 
+  glutInitWindowSize(600, 500);
+  glutCreateWindow("Ex01 - Immediate Mode Triangle"); 
+  glutDisplayFunc(display);
 glutMainLoop(); return 0;
 }
  
