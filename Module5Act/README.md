@@ -8,9 +8,9 @@ This module contains 40 C++ OpenGL programs:
 
 ## What the OpenGL libraries do
 
-- **OpenGL** renders the graphics. Windows already provides the system OpenGL library (`opengl32`).
-- **GLEW** loads modern OpenGL functions such as vertex buffer object functions.
-- **FreeGLUT** creates the window and handles keyboard, mouse, display, and timer callbacks.
+- **OpenGL** renders the graphics. Windows provides `opengl32`; macOS provides the OpenGL framework.
+- **GLEW** loads modern OpenGL functions on Windows and Linux. The macOS source path uses Apple's framework directly.
+- **FreeGLUT/GLUT** creates the window and handles keyboard, mouse, display, and timer callbacks. Windows uses FreeGLUT; macOS uses Apple's GLUT framework.
 - **GLU** supplies older OpenGL utility functions used by some toolchains.
 
 On Windows and Linux, the programs include GLEW before FreeGLUT:
@@ -160,19 +160,108 @@ cmake --build build -j
 ./build/bin/PartB/PartB_Q20
 ```
 
-## macOS
+## Recommended macOS setup: Apple Clang + VS Code
 
-The source files use the system OpenGL and GLUT frameworks on macOS, so GLEW is not required:
+The programs automatically select Apple's headers when `__APPLE__` is defined:
+
+```cpp
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glew.h>
+#include <GL/glut.h>
+#endif
+```
+
+macOS uses its built-in OpenGL and GLUT frameworks. Do not install or link the Windows FreeGLUT DLLs, and do not add GLEW to the macOS compile command.
+
+### 1. Install the tools
+
+1. Install the Xcode Command Line Tools:
+
+   ```bash
+   xcode-select --install
+   ```
+
+2. Confirm that Apple Clang is available:
+
+   ```bash
+   clang++ --version
+   ```
+
+3. Install [Homebrew](https://brew.sh/) if it is not installed, then install CMake and Ninja:
+
+   ```bash
+   brew install cmake ninja
+   ```
+
+4. Install Visual Studio Code and Microsoft's **C/C++** extension if you want to build from VS Code.
+
+### 2. Build one activity directly
+
+From the `Module5Act` directory:
 
 ```bash
-xcode-select --install
-brew install cmake
-cmake -S . -B build
-cmake --build build -j
+mkdir -p bin
+clang++ SourceCode/PartB/Q20.cpp -std=c++17 -o bin/Q20 -framework OpenGL -framework GLUT
+./bin/Q20
+```
+
+Replace `Q20.cpp` and `Q20` with the desired activity. The framework options must appear in the compile command so the linker can resolve OpenGL and GLUT functions.
+
+### 3. Build from VS Code with `Cmd+Shift+B`
+
+Create `.vscode/tasks.json` in your cloned repository:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "Build active OpenGL file (macOS)",
+      "command": "/usr/bin/clang++",
+      "args": [
+        "-std=c++17",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}",
+        "-framework",
+        "OpenGL",
+        "-framework",
+        "GLUT"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
+```
+
+Open an activity, press `Cmd+Shift+B`, then run the generated program from the VS Code terminal.
+
+### 4. Build every activity with CMake
+
+```bash
+cmake -S . -B build -G Ninja
+cmake --build build
 ./build/bin/PartB/PartB_Q20
 ```
 
-Apple has deprecated OpenGL, but it remains sufficient for these compatibility-profile laboratory exercises.
+To build only one activity:
+
+```bash
+cmake --build build --target PartB_Q20
+```
+
+Apple deprecated OpenGL in macOS 10.14, so the compiler may display deprecation warnings. These warnings are expected for this course's compatibility-profile exercises and do not prevent them from building.
 
 ## Common setup errors
 
@@ -196,10 +285,22 @@ Check that the linker flags appear after the source file and include:
 
 Add `C:\msys64\ucrt64\bin` to `Path`, or copy the required DLLs from that directory beside the generated `.exe`. Do not use DLLs from a different architecture or compiler distribution.
 
+### macOS reports `GL/glew.h` or `GL/glut.h` is missing
+
+Compile with Apple Clang (`/usr/bin/clang++`) and do not manually define or remove `__APPLE__`. On macOS, the source should select `<GLUT/glut.h>` automatically; the Windows-style `<GL/...>` headers are inside the non-Apple branch.
+
+### macOS reports undefined OpenGL or GLUT symbols
+
+Make sure both `-framework OpenGL` and `-framework GLUT` are present after the source/output arguments, or build through the included CMake project.
+
+### macOS says the developer tools are missing
+
+Run `xcode-select --install`. If Xcode is installed but the command-line path is incorrect, select it with `sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer`.
+
 ### The program opens and immediately closes
 
 Run the executable from a terminal so error messages remain visible. Most activities enter `glutMainLoop()` and stay open until the window is closed; activities with an Escape-key handler can also be closed with **Esc**.
 
 ### Black window or unsupported OpenGL behavior
 
-Update the graphics driver supplied by Intel, AMD, or NVIDIA. These exercises use legacy/compatibility OpenGL features, so a compatibility-capable desktop driver is required.
+On Windows, update the graphics driver supplied by Intel, AMD, or NVIDIA. On macOS, install available macOS updates because Apple distributes its graphics drivers with the operating system. These exercises use legacy/compatibility OpenGL features.
