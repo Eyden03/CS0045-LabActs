@@ -1,12 +1,22 @@
-# Module 5: OpenGL, GLEW, and FreeGLUT
+# CS0045 Laboratory Activities
+
+This repository contains the laboratory activities for CS0045, organized by module. Existing work is available in `Module1Act`, `Module3Act`, `Module4Act`, and `Module5Act`.
+
+## Module 5: OpenGL, GLEW, and FreeGLUT
 
 This module contains 40 C++ OpenGL programs:
 
-- `SourceCode/PartA/Ex01.cpp` through `Ex20.cpp`
-- `SourceCode/PartB/Q01.cpp` through `Q20.cpp`
-- Their results under `OutputScreenshots/PartA` and `OutputScreenshots/PartB`
+- `Module5Act/SourceCode/PartA/Ex01.cpp` through `Ex20.cpp`
+- `Module5Act/SourceCode/PartB/Q01.cpp` through `Q20.cpp`
+- Their results under `Module5Act/OutputScreenshots/PartA` and `Module5Act/OutputScreenshots/PartB`
 
-## What the OpenGL libraries do
+For the Module 5 commands below, first open a terminal at the repository root and enter:
+
+```bash
+cd Module5Act
+```
+
+### What the OpenGL libraries do
 
 - **OpenGL** renders the graphics. Windows provides `opengl32`; macOS provides the OpenGL framework.
 - **GLEW** loads modern OpenGL functions on Windows and Linux. The macOS source path uses Apple's framework directly.
@@ -22,11 +32,11 @@ On Windows and Linux, the programs include GLEW before FreeGLUT:
 
 Do not reverse that order. GLEW must be included before other OpenGL headers.
 
-## Recommended Windows setup: MSYS2 MinGW-w64 + VS Code
+### Recommended Windows setup: MSYS2 MinGW-w64 + VS Code
 
 This is the closest reproducible setup to the MinGW environment used to create these activities. Do not download random individual DLL or header files from third-party websites; install one matching toolchain so the compiler, headers, libraries, and DLLs use the same architecture.
 
-### 1. Install the tools
+#### 1. Install the tools
 
 1. Install [MSYS2](https://www.msys2.org/).
 2. Open the **MSYS2 UCRT64** terminal.
@@ -53,7 +63,7 @@ Check the installation in a new VS Code terminal:
 g++ --version
 ```
 
-### 2. Build one activity directly
+#### 2. Build one activity directly
 
 From the `Module5Act` directory, create a build-output folder and compile an activity:
 
@@ -65,7 +75,7 @@ g++ .\SourceCode\PartB\Q20.cpp -std=c++17 -o .\bin\Q20.exe -lglew32 -lfreeglut -
 
 Replace `Q20.cpp` and `Q20.exe` with the activity you want to build. If the compiler reports undefined references, keep all `-l...` linker options after the `.cpp` source file.
 
-### 3. Build from VS Code with `Ctrl+Shift+B`
+#### 3. Build from VS Code with `Ctrl+Shift+B`
 
 Create `.vscode/tasks.json` in your cloned repository and use this task:
 
@@ -105,7 +115,7 @@ Create `.vscode/tasks.json` in your cloned repository and use this task:
 
 Open the desired `.cpp` file, press `Ctrl+Shift+B`, and run the `.exe` created beside that source file.
 
-## Linux
+### Linux
 
 Ubuntu/Debian:
 
@@ -117,7 +127,7 @@ g++ SourceCode/PartB/Q20.cpp -std=c++17 -o bin/Q20 -lGLEW -lglut -lGL -lGLU
 ./bin/Q20
 ```
 
-## Recommended macOS setup: Apple Clang + VS Code
+### Recommended macOS setup: Apple Clang + VS Code
 
 The programs automatically select Apple's headers when `__APPLE__` is defined:
 
@@ -132,7 +142,7 @@ The programs automatically select Apple's headers when `__APPLE__` is defined:
 
 macOS uses its built-in OpenGL and GLUT frameworks. Do not install or link the Windows FreeGLUT DLLs, and do not add GLEW to the macOS compile command.
 
-### 1. Install the tools
+#### 1. Install the tools
 
 1. Install the Xcode Command Line Tools:
 
@@ -148,7 +158,7 @@ macOS uses its built-in OpenGL and GLUT frameworks. Do not install or link the W
 
 3. Install Visual Studio Code and Microsoft's **C/C++** extension if you want to build from VS Code.
 
-### 2. Build one activity directly
+#### 2. Build one activity directly
 
 From the `Module5Act` directory:
 
@@ -160,7 +170,7 @@ clang++ SourceCode/PartB/Q20.cpp -std=c++17 -o bin/Q20 -framework OpenGL -framew
 
 Replace `Q20.cpp` and `Q20` with the desired activity. The framework options must appear in the compile command so the linker can resolve OpenGL and GLUT functions.
 
-### 3. Build from VS Code with `Cmd+Shift+B`
+#### 3. Build from VS Code with `Cmd+Shift+B`
 
 Create `.vscode/tasks.json` in your cloned repository:
 
@@ -200,17 +210,17 @@ Open an activity, press `Cmd+Shift+B`, then run the generated program from the V
 
 Apple deprecated OpenGL in macOS 10.14, so the compiler may display deprecation warnings. These warnings are expected for this course's compatibility-profile exercises and do not prevent them from building.
 
-## Common setup errors
+### Common setup errors
 
-### `fatal error: GL/glew.h: No such file or directory`
+#### `fatal error: GL/glew.h: No such file or directory`
 
 GLEW is not installed for the compiler being used, or VS Code is calling a different `g++`. Run `where.exe g++` and verify that it resolves to `C:\msys64\ucrt64\bin\g++.exe`.
 
-### `fatal error: GL/glut.h: No such file or directory`
+#### `fatal error: GL/glut.h: No such file or directory`
 
 FreeGLUT is missing from the active toolchain. Install the UCRT64 FreeGLUT package shown above.
 
-### `undefined reference to ...`
+#### `undefined reference to ...`
 
 Check that the linker flags appear after the source file and include:
 
@@ -218,26 +228,26 @@ Check that the linker flags appear after the source file and include:
 -lglew32 -lfreeglut -lopengl32 -lglu32 -lwinmm -lgdi32
 ```
 
-### `freeglut.dll was not found` or `glew32.dll was not found`
+#### `freeglut.dll was not found` or `glew32.dll was not found`
 
 Add `C:\msys64\ucrt64\bin` to `Path`, or copy the required DLLs from that directory beside the generated `.exe`. Do not use DLLs from a different architecture or compiler distribution.
 
-### macOS reports `GL/glew.h` or `GL/glut.h` is missing
+#### macOS reports `GL/glew.h` or `GL/glut.h` is missing
 
 Compile with Apple Clang (`/usr/bin/clang++`) and do not manually define or remove `__APPLE__`. On macOS, the source should select `<GLUT/glut.h>` automatically; the Windows-style `<GL/...>` headers are inside the non-Apple branch.
 
-### macOS reports undefined OpenGL or GLUT symbols
+#### macOS reports undefined OpenGL or GLUT symbols
 
 Make sure both `-framework OpenGL` and `-framework GLUT` are present after the source/output arguments.
 
-### macOS says the developer tools are missing
+#### macOS says the developer tools are missing
 
 Run `xcode-select --install`. If Xcode is installed but the command-line path is incorrect, select it with `sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer`.
 
-### The program opens and immediately closes
+#### The program opens and immediately closes
 
 Run the executable from a terminal so error messages remain visible. Most activities enter `glutMainLoop()` and stay open until the window is closed; activities with an Escape-key handler can also be closed with **Esc**.
 
-### Black window or unsupported OpenGL behavior
+#### Black window or unsupported OpenGL behavior
 
 On Windows, update the graphics driver supplied by Intel, AMD, or NVIDIA. On macOS, install available macOS updates because Apple distributes its graphics drivers with the operating system. These exercises use legacy/compatibility OpenGL features.
