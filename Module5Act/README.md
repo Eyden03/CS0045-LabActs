@@ -38,10 +38,10 @@ This is the closest reproducible setup to the MinGW environment used to create t
 
    If MSYS2 asks you to close the terminal, reopen **MSYS2 UCRT64** and run the command again.
 
-4. Install the compiler, debugger, CMake, GLEW, and FreeGLUT:
+4. Install the compiler, debugger, GLEW, and FreeGLUT:
 
    ```bash
-   pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-gdb mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-glew mingw-w64-ucrt-x86_64-freeglut
+   pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-gdb mingw-w64-ucrt-x86_64-glew mingw-w64-ucrt-x86_64-freeglut
    ```
 
 5. Add `C:\msys64\ucrt64\bin` to the Windows `Path` environment variable, then restart VS Code.
@@ -51,7 +51,6 @@ Check the installation in a new VS Code terminal:
 
 ```powershell
 g++ --version
-cmake --version
 ```
 
 ### 2. Build one activity directly
@@ -106,58 +105,16 @@ Create `.vscode/tasks.json` in your cloned repository and use this task:
 
 Open the desired `.cpp` file, press `Ctrl+Shift+B`, and run the `.exe` created beside that source file.
 
-## Build every activity with CMake
-
-The included `CMakeLists.txt` creates a separate executable for every Part A and Part B source file.
-
-Using the MSYS2 UCRT64 toolchain:
-
-```powershell
-cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER=C:/msys64/ucrt64/bin/g++.exe
-cmake --build build
-```
-
-The executables are placed in:
-
-```text
-build/bin/PartA
-build/bin/PartB
-```
-
-For example:
-
-```powershell
-.\build\bin\PartB\PartB_Q20.exe
-```
-
-To build only one activity:
-
-```powershell
-cmake --build build --target PartB_Q20
-```
-
-## Alternative Windows setup: Visual Studio + vcpkg
-
-Install Visual Studio Build Tools with the **Desktop development with C++** workload, CMake, Git, and [vcpkg](https://learn.microsoft.com/vcpkg/get_started/get-started). The included `vcpkg.json` declares GLEW and FreeGLUT.
-
-```powershell
-cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake"
-cmake --build build --config Release
-.\build\bin\PartB\Release\PartB_Q20.exe
-```
-
-Use either the MSYS2/MinGW method or the Visual Studio/vcpkg method consistently. Do not mix 32-bit libraries, 64-bit libraries, MinGW libraries, and Visual Studio libraries.
-
 ## Linux
 
 Ubuntu/Debian:
 
 ```bash
 sudo apt update
-sudo apt install build-essential cmake libglew-dev freeglut3-dev
-cmake -S . -B build
-cmake --build build -j
-./build/bin/PartB/PartB_Q20
+sudo apt install build-essential libglew-dev freeglut3-dev
+mkdir -p bin
+g++ SourceCode/PartB/Q20.cpp -std=c++17 -o bin/Q20 -lGLEW -lglut -lGL -lGLU
+./bin/Q20
 ```
 
 ## Recommended macOS setup: Apple Clang + VS Code
@@ -189,13 +146,7 @@ macOS uses its built-in OpenGL and GLUT frameworks. Do not install or link the W
    clang++ --version
    ```
 
-3. Install [Homebrew](https://brew.sh/) if it is not installed, then install CMake and Ninja:
-
-   ```bash
-   brew install cmake ninja
-   ```
-
-4. Install Visual Studio Code and Microsoft's **C/C++** extension if you want to build from VS Code.
+3. Install Visual Studio Code and Microsoft's **C/C++** extension if you want to build from VS Code.
 
 ### 2. Build one activity directly
 
@@ -247,20 +198,6 @@ Create `.vscode/tasks.json` in your cloned repository:
 
 Open an activity, press `Cmd+Shift+B`, then run the generated program from the VS Code terminal.
 
-### 4. Build every activity with CMake
-
-```bash
-cmake -S . -B build -G Ninja
-cmake --build build
-./build/bin/PartB/PartB_Q20
-```
-
-To build only one activity:
-
-```bash
-cmake --build build --target PartB_Q20
-```
-
 Apple deprecated OpenGL in macOS 10.14, so the compiler may display deprecation warnings. These warnings are expected for this course's compatibility-profile exercises and do not prevent them from building.
 
 ## Common setup errors
@@ -291,7 +228,7 @@ Compile with Apple Clang (`/usr/bin/clang++`) and do not manually define or remo
 
 ### macOS reports undefined OpenGL or GLUT symbols
 
-Make sure both `-framework OpenGL` and `-framework GLUT` are present after the source/output arguments, or build through the included CMake project.
+Make sure both `-framework OpenGL` and `-framework GLUT` are present after the source/output arguments.
 
 ### macOS says the developer tools are missing
 
